@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  kafka.consumer.1:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile.consumer
+    container_name: kafka.consumer
+    networks:
+      main-net:
+        ipv4_address: 172.30.1.21
+        aliases:
+          - "kafka.consumer.1"
+    entrypoint: /kafka_consumer/config/entrypoint.sh
+    volumes:
+      - ../:/kafka_consumer
+    restart: on-failure
+
+networks:
+  main-net:
+    external: true

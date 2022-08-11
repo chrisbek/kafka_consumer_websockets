@@ -1,0 +1,23 @@
+FROM ubuntu:20.04 as ubuntu_base
+LABEL maintainer="bekos.christopher@gmail.com"
+
+# Install python
+RUN apt-get update
+RUN apt-get install software-properties-common -y && add-apt-repository ppa:deadsnakes/ppa -y
+RUN apt-get install python3.9 -y && apt-get install python3-pip -y && ln -s /usr/bin/python3.9 /usr/bin/python
+
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE 1
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED 1
+
+RUN mkdir -p /kafka_consumer
+ENV PYTHONPATH "$PYTHONPATH:/kafka_consumer"
+ENV PATH="${PATH}:/root/.poetry/bin"
+WORKDIR /kafka_consumer
+
+RUN pip3 install poetry
+COPY pyproject.toml poetry.lock /kafka_consumer/
+RUN poetry config virtualenvs.create false \
+  && poetry install --no-dev --no-interaction --no-ansi --no-root
+RUN rm /kafka_consumer/pyproject.toml /kafka_consumer/poetry.lock
